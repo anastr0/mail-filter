@@ -47,3 +47,18 @@ def get_gmail_api_service():
         # TODO(developer) - Handle errors from gmail API.
         print(f"An error occurred: {error}")
         return
+
+
+def init_pg_conn():
+    """Initialize and return a PostgreSQL database connection."""
+    import psycopg2
+
+    conn = None
+    try:
+        conn = psycopg2.connect(
+            host="localhost", database="emaildb", user="atr", password="password"
+        )
+        print("Connected to PostgreSQL successfully!")
+    except psycopg2.Error as e:
+        print(f"Error connecting to PostgreSQL: {e}")
+    return conn
