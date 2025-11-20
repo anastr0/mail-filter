@@ -1,0 +1,24 @@
+{
+    "rules": [
+        {
+            "description": "Rule 1",
+            "rules": [
+                {"field": "", "predicate": "", "value": ""},
+                {"field": "", "predicate": "", "value": ""},
+                {"field": "", "predicate": "", "value": ""}
+            ],
+            "overall_predicate": "",
+            "actions": []
+        },
+        {
+            "description": "Rule 2",
+            "rules": [
+                {"field": "", "predicate": "", "value": ""},
+                {"field": "", "predicate": "", "value": ""},
+                {"field": "", "predicate": "", "value": ""}
+            ],
+            "overall_predicate": "",
+            "actions": []
+        }
+    ]
+}
