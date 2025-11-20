@@ -89,18 +89,19 @@ def read_emails_from_gmail():
     return email_values
 
 
-def store_emails_in_dbs():
+def store_emails_in_db():
     """
     Store emails fetched from Gmail into PostgreSQL database.
     """
-    conn = init_pg_conn()
-    if not conn:
-        print("No database connection available.")
-        return
-
     email_values = read_emails_from_gmail()
     if not email_values:
         print("No emails to store.")
+        return
+
+    print(f"Storing {len(email_values)} emails into the database.")
+    conn = init_pg_conn()
+    if not conn:
+        print("No database connection available.")
         return
 
     insert_query = "INSERT INTO emails (id, subject_title, from_addr, to_addr, received_date) VALUES (%s, %s, %s, %s, %s);"
@@ -115,4 +116,4 @@ def store_emails_in_dbs():
 
 
 if __name__ == "__main__":
-    store_emails_in_dbs()
+    store_emails_in_db()
