@@ -1,0 +1,17 @@
+services:
+  db:
+    container_name: postgresdb
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: atr
+      POSTGRES_DB: emaildb
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init_db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
