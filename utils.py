@@ -1,4 +1,5 @@
 import os.path
+import psycopg2
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -6,8 +7,36 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
+
+
+RULES_VALIDATORS = {
+    "RULES": {
+        "FIELDS": ["FROM", "TO", "SUBJECT", "RECEIVED_DATE"],
+        "PREDICATES": [
+            "CONTAINS",
+            "DOES_NOT_CONTAIN",
+            "EQUALS",
+            "NOT_EQUAL",
+            "LESS_THAN",
+            "GREATER_THAN",
+        ],
+        "OVERALL_PREDICATES": ["ALL", "ANY"],
+        "STRING_VALUE": {
+            "FIELDS": ["FROM", "TO", "SUBJECT"],
+            "PREDICATES": ["CONTAINS", "DOES_NOT_CONTAIN", "EQUALS", "NOT_EQUAL"],
+        },
+        "TIME_VALUE": {  #
+            "FIELDS": [
+                "RECEIVED_DATE",
+            ],
+            "PREDICATES": ["LESS_THAN", "GREATER_THAN"],
+        },
+    },
+    "ACTIONS": ["MARK_AS_READ", "MOVE_MESSAGE"],
+}
 
 
 def get_gmail_api_service():
@@ -51,8 +80,6 @@ def get_gmail_api_service():
 
 def init_pg_conn():
     """Initialize and return a PostgreSQL database connection."""
-    import psycopg2
-
     conn = None
     try:
         conn = psycopg2.connect(
