@@ -38,10 +38,12 @@ def get_email_metadata(service, email_id):
         header_map = {h["name"]: h["value"] for h in metadata["payload"]["headers"]}
         received_date = header_map.get("Date", "")
         if received_date:
-            received_date = datetime.strptime(
-                received_date[:31], "%a, %d %b %Y %H:%M:%S %z"
-            )
-
+            try:
+                received_date = datetime.strptime(
+                    received_date.split(" (")[0], "%a, %d %b %Y %H:%M:%S %z"
+                )
+            except ValueError:
+                print(f"Date parsing error for email ID {email_id}: {received_date}")
         return (
             metadata["id"],
             header_map.get("Subject", ""),
