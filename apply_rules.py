@@ -1,22 +1,14 @@
-import sys
 import logging
 
 from utils.services import (
     init_pg_conn,
     get_gmail_api_service,
+    get_logger
 )
 
 
 # Configure module logger to output to stdout
-_LOG = logging.getLogger(__name__)
-if not _LOG.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    handler.setFormatter(formatter)
-    _LOG.addHandler(handler)
-_LOG.setLevel(logging.DEBUG)
-_LOG.propagate = False
+_LOG = get_logger(__name__, logging.DEBUG)
 
 
 RULES_VALIDATORS = {

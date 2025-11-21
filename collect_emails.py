@@ -4,52 +4,10 @@ import sys
 
 from datetime import datetime
 
-from utils.services import init_pg_conn, get_gmail_api_service
+from utils.services import init_pg_conn, get_gmail_api_service, get_logger
 
 # Configure module logger to output to stdout
-_LOG = logging.getLogger(__name__)
-if not _LOG.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-    handler.setFormatter(formatter)
-    _LOG.addHandler(handler)
-_LOG.setLevel(logging.DEBUG)
-_LOG.propagate = False
-
-# ALL_EMAILS_METADATA = []
-
-
-# def email_metadata_callback(request_id, response, exception):
-#     """Handles the response for a single request in the batch of Gmail API calls."""
-#     if exception is not None:
-#         # Handle the exception (e.g., _LOG.info the error)
-#         _LOG.info(f"Request ID {request_id} failed: {exception}")
-#     else:
-#         # Process the response (e.g., _LOG.info data)
-#         _LOG.info(f"Request ID {request_id} succeeded. Data: {response}")
-#         ALL_EMAILS_METADATA.append(response)
-
-
-# def get_email_details(service, emails):
-#     batch = get_new_gmail_api_batch_request(callback=email_metadata_callback)
-#     try:
-#         for email in emails:
-#             metadata_request = (
-#                 service.users()
-#                 .messages()
-#                 .get(
-#                     userId="me",
-#                     id=email["id"],
-#                     format="metadata",
-#                     metadataHeaders=["Subject", "From", "To", "Date"],
-#                 )
-#             )
-#             batch.add(metadata_request, request_id=f"get-email-metadata-{email['id']}")
-#         batch.execute()
-#     except Exception as e:
-#         _LOG.info("An error occured")
-#         _LOG.info(e)
+_LOG = get_logger(__name__, logging.DEBUG)
 
 
 class CollectEmails:

@@ -1,4 +1,7 @@
-from services import init_pg_conn
+import logging
+from services import init_pg_conn, get_logger
+
+_LOG = get_logger(__name__, logging.DEBUG)
 
 """
 Backup scripts to backup and restore emails from Postgres DB to pkl file and vice versa.

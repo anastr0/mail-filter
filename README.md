@@ -44,7 +44,7 @@ python collect emails.py --count 20
 
 > You can use util functions in backup_utils.py to backup stored emails in DB, purge DB and restore pkl emails to DB. 
 ```python
-from backup_utils import (
+from utils.backup import (
     backup_emails_to_pkl,
     purge_emails_table,
     restore_emails_from_pkl

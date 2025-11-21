@@ -1,5 +1,7 @@
+import logging
 import os.path
 import psycopg2
+import sys
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -11,6 +13,27 @@ from googleapiclient.errors import HttpError
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 
+
+def get_logger(name, level=logging.INFO):
+    """
+    Return a module logger configured to write to stdout.
+    Safe to call multiple times from different modules — handlers are only added once.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.propagate = False
+
+    # Add a single StreamHandler to stdout if none exist
+    if not any(isinstance(h, logging.StreamHandler) and getattr(h, "stream", None) is sys.stdout for h in logger.handlers):
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(level)
+        fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        handler.setFormatter(logging.Formatter(fmt))
+        logger.addHandler(handler)
+
+    return logger
+
+_LOG = get_logger(__name__, logging.DEBUG)
 
 def get_gmail_api_service():
     """
