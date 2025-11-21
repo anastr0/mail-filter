@@ -1,7 +1,7 @@
 import sys
 import logging
 
-from utils import (
+from utils.services import (
     init_pg_conn,
     get_gmail_api_service,
 )
@@ -17,6 +17,7 @@ if not _LOG.handlers:
     _LOG.addHandler(handler)
 _LOG.setLevel(logging.DEBUG)
 _LOG.propagate = False
+
 
 RULES_VALIDATORS = {
     "RULES": {
@@ -34,7 +35,7 @@ RULES_VALIDATORS = {
             "FIELDS": ["FROM", "TO", "SUBJECT"],
             "PREDICATES": ["CONTAINS", "DOES_NOT_CONTAIN", "EQUALS", "NOT_EQUAL"],
         },
-        "TIME_VALUE": {  #
+        "TIME_VALUE": {
             "FIELDS": [
                 "RECEIVED_DATE",
             ],

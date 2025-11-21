@@ -4,7 +4,7 @@ import sys
 
 from datetime import datetime
 
-from utils import init_pg_conn, get_gmail_api_service
+from utils.services import init_pg_conn, get_gmail_api_service
 
 # Configure module logger to output to stdout
 _LOG = logging.getLogger(__name__)

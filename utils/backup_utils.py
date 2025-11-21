@@ -26,6 +26,7 @@ def backup_emails_to_pkl():
     finally:
         conn.close()
 
+
 # TODO : purge postgres db table emails
 def purge_emails_table():
     conn = init_pg_conn()
