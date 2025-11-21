@@ -1,24 +1,29 @@
 {
     "filters": [
         {
-            "description": "Filter 1",
+            "name": "important_work_email",
+            "description": "Move Important Work Email",
             "rules": [
-                {"field": "FROM", "predicate": "CONTAINS", "value": "mckesson.com"},
-                {"field": "FROM", "predicate": "CONTAINS", "value": "lavorro.com"},
-                {"field": "FROM", "predicate": "CONTAINS", "value": "github.com"}
+                {"field": "FROM", "predicate": "CONTAINS", "value": "mckesson.com"}
             ],
             "overall_predicate": "ANY",
-            "actions": ["MARK_AS_READ"]
+            "actions": [
+                ["MARK_AS_READ", null],
+                ["MOVE_MESSAGE", "VERY_IMPORTANT"]
+            ]
         },
         {
-            "description": "Filter 2",
+            "name": "github_notifications",
+            "description": "Filter GitHub Notifications",
             "rules": [
-                {"field": "FROM", "predicate": "CONTAINS", "value": "mckesson.com"},
-                {"field": "FROM", "predicate": "CONTAINS", "value": "lavorro.com"},
-                {"field": "FROM", "predicate": "CONTAINS", "value": "github.com"}
+                {"field": "FROM", "predicate": "CONTAINS", "value": "github.com"},
+                {"field": "SUBJECT", "predicate": "CONTAINS", "value": "GitHub"}
             ],
             "overall_predicate": "ANY",
-            "actions": ["MARK_AS_READ"]
+            "actions": [
+                ["MARK_AS_READ", null],
+                ["MOVE_MESSAGE", "git"]
+            ]
         }
     ]
-}
+} 
