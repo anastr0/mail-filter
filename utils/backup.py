@@ -1,5 +1,6 @@
 import logging
-from services import init_pg_conn, get_logger
+
+from utils.services import init_pg_conn, get_logger
 
 _LOG = get_logger(__name__, logging.DEBUG)
 
@@ -26,7 +27,7 @@ def backup_emails_to_pkl():
 
         import pickle
 
-        with open("../bkp/emails_backup_db.pkl", "wb") as pkl_file:
+        with open("bkp/emails_backup_db.pkl", "wb") as pkl_file:
             pickle.dump(emails, pkl_file)
         _LOG.debug(f"Backed up {len(emails)} emails to emails_backup.pkl")
     except Exception as e:
@@ -34,8 +35,6 @@ def backup_emails_to_pkl():
     finally:
         conn.close()
 
-
-# TODO : purge postgres db table emails
 def purge_emails_table():
     conn = init_pg_conn()
     if not conn:
@@ -53,8 +52,6 @@ def purge_emails_table():
     finally:
         conn.close()
 
-
-# TODO : restore emails from pkl file to postgres db
 def restore_emails_from_pkl():
     conn = init_pg_conn()
     if not conn:
@@ -64,7 +61,7 @@ def restore_emails_from_pkl():
     import pickle
 
     try:
-        with open("../bkp/emails_backup.pkl_db", "rb") as pkl_file:
+        with open("bkp/emails_backup_db.pkl", "rb") as pkl_file:
             emails = pickle.load(pkl_file)
 
         insert_query = "INSERT INTO emails (id, subject_title, from_addr, to_addr, received_date) VALUES (%s, %s, %s, %s, %s);"

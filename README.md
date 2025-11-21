@@ -54,6 +54,8 @@ backup_emails_to_pkl()
 
 # purge emails in db
 purge_emails_table()
+
+restore_emails_from_pkl()
 ```
 
 ### Define rules in `rules.json`
