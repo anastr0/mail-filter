@@ -43,7 +43,7 @@ def get_email_metadata(service, email_id):
                     received_date.split(" (")[0], "%a, %d %b %Y %H:%M:%S %z"
                 )
             except ValueError:
-                print(f"Date parsing error for email ID {email_id}: {received_date}")
+                _LOG.error(f"Date parsing error for email ID {email_id}: {received_date}")
         return (
             metadata["id"],
             header_map.get("Subject", ""),
@@ -52,8 +52,43 @@ def get_email_metadata(service, email_id):
             received_date,
         )
     except Exception as e:
-        print(f"An error occurred while fetching email metadata: {e}")
+        _LOG.errors(f"An error occurred while fetching email metadata: {e}")
         return None
+
+
+# ALL_EMAILS_METADATA = []
+
+
+# def email_metadata_callback(request_id, response, exception):
+#     """Handles the response for a single request in the batch of Gmail API calls."""
+#     if exception is not None:
+#         # Handle the exception (e.g., _LOG.info the error)
+#         _LOG.info(f"Request ID {request_id} failed: {exception}")
+#     else:
+#         # Process the response (e.g., _LOG.info data)
+#         _LOG.info(f"Request ID {request_id} succeeded. Data: {response}")
+#         ALL_EMAILS_METADATA.append(response)
+
+
+# def get_email_details(service, emails):
+#     batch = get_new_gmail_api_batch_request(callback=email_metadata_callback)
+#     try:
+#         for email in emails:
+#             metadata_request = (
+#                 service.users()
+#                 .messages()
+#                 .get(
+#                     userId="me",
+#                     id=email["id"],
+#                     format="metadata",
+#                     metadataHeaders=["Subject", "From", "To", "Date"],
+#                 )
+#             )
+#             batch.add(metadata_request, request_id=f"get-email-metadata-{email['id']}")
+#         batch.execute()
+#     except Exception as e:
+#         _LOG.info("An error occured")
+#         _LOG.info(e)
 
 
 def read_emails_from_gmail():
@@ -64,7 +99,7 @@ def read_emails_from_gmail():
     """
     service = get_gmail_api_service()
     if not service:
-        print("Failed to get Gmail API service.")
+        _LOG.error("Failed to get Gmail API service.")
         return
 
     emails = []
@@ -73,16 +108,16 @@ def read_emails_from_gmail():
         results = (
             service.users()
             .messages()
-            .list(userId="me", labelIds=["INBOX"], maxResults=10)
+            .list(userId="me", labelIds=["INBOX"], maxResults=2)
             .execute()
         )
         emails = results.get("messages", [])
 
         if not emails:
-            print("No emails found.")
+            _LOG.info("No emails found.")
             return
     except Exception as e:
-        print(f"An error occurred while listing emails from Gmail API: {e}")
+        _LOG.error(f"An error occurred while listing emails from Gmail API: {e}")
         return
 
     email_values = [get_email_metadata(service, email["id"]) for email in emails]
@@ -95,13 +130,13 @@ def store_emails_in_db():
     """
     email_values = read_emails_from_gmail()
     if not email_values:
-        print("No emails to store.")
+        _LOG.info("No emails to store.")
         return
 
-    print(f"Storing {len(email_values)} emails into the database.")
+    _LOG.info(f"Storing {len(email_values)} emails into the database.")
     conn = init_pg_conn()
     if not conn:
-        print("No database connection available.")
+        _LOG.error("No database connection available.")
         return
 
     insert_query = "INSERT INTO emails (id, subject_title, from_addr, to_addr, received_date) VALUES (%s, %s, %s, %s, %s);"
@@ -110,7 +145,7 @@ def store_emails_in_db():
             cursor.executemany(insert_query, email_values)
         conn.commit()
     except Exception as e:
-        print(f"An error occurred while inserting emails into the database: {e}")
+        _LOG.error(f"An error occurred while inserting emails into the database: {e}")
     finally:
         conn.close()
 
@@ -121,9 +156,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.count <= 0:
-        print("Count must be a positive integer.")
+        _LOG.error("Count must be a positive integer.")
     elif args.count > 100:
-        print("Count exceeds the maximum limit of 100. You risk hitting API limits.")
+        _LOG.error("Count exceeds the maximum limit of 100. You risk hitting API limits.")
     else:
-        print(f"Collecting {args.count} emails from Gmail and storing in DB.")
-        store_emails_in_db()
+        _LOG.info(f"Collecting {args.count} emails from Gmail and storing in DB.")
+        # store_emails_in_db()
