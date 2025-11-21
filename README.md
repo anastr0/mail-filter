@@ -78,9 +78,7 @@ Usage instructions for rules.json:
     "rules": [
         {
             "field": "'FROM' or 'TO' or 'SUBJECT' or 'RECEIVED_DATE'",
-            "predicate": "'CONTAINS' or 'DOES_NOT_CONTAIN' or 'EQUALS' or 'NOT_EQUAL' or 'LESS_THAN' or 'GREATER_THAN', 
-                            'LESS_THAN' and 'GREATER_THAN' only for 'RECEIVED_DATE'
-                            Rest for string fields,",
+            "predicate": "('CONTAINS' or 'DOES_NOT_CONTAIN' or 'EQUALS' or 'NOT_EQUAL') for string fields and ('LESS_THAN' or 'GREATER_THAN',) for time fields like 'RECEIVED_DATE'",
             "value": "'string value' or 'time interval' (e.g., '2 days')"
         }
     ],
