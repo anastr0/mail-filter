@@ -165,7 +165,11 @@ class EmailFilterEngine:
 
         _LOG.info(f"Filtered {len(rows)} emails from DB for ruleset: {ruleset['name']}.\nApplying actions...\n")
         # Apply actions to the filtered emails
-        self.apply_actions(ruleset["actions"], [row[0] for row in rows])
+
+        if rows:
+            self.apply_actions(ruleset["actions"], [row[0] for row in rows])
+        else:
+            _LOG.info(f"No emails matched for ruleset: {ruleset['name']}. No actions applied.\n")
 
     def apply_actions(self, actions, email_rows):
         """apply actions to the emails identified by email_rows using gmail_service"""
