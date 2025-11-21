@@ -1,24 +1,24 @@
 {
-    "rules": [
+    "filters": [
         {
-            "description": "Rule 1",
+            "description": "Filter 1",
             "rules": [
-                {"field": "", "predicate": "", "value": ""},
-                {"field": "", "predicate": "", "value": ""},
-                {"field": "", "predicate": "", "value": ""}
+                {"field": "FROM", "predicate": "CONTAINS", "value": "mckesson.com"},
+                {"field": "FROM", "predicate": "CONTAINS", "value": "lavorro.com"},
+                {"field": "FROM", "predicate": "CONTAINS", "value": "github.com"}
             ],
-            "overall_predicate": "",
-            "actions": []
+            "overall_predicate": "ANY",
+            "actions": ["MARK_AS_READ"]
         },
         {
-            "description": "Rule 2",
+            "description": "Filter 2",
             "rules": [
-                {"field": "", "predicate": "", "value": ""},
-                {"field": "", "predicate": "", "value": ""},
-                {"field": "", "predicate": "", "value": ""}
+                {"field": "FROM", "predicate": "CONTAINS", "value": "mckesson.com"},
+                {"field": "FROM", "predicate": "CONTAINS", "value": "lavorro.com"},
+                {"field": "FROM", "predicate": "CONTAINS", "value": "github.com"}
             ],
-            "overall_predicate": "",
-            "actions": []
+            "overall_predicate": "ANY",
+            "actions": ["MARK_AS_READ"]
         }
     ]
 }
