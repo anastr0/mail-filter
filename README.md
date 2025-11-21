@@ -7,7 +7,7 @@ Perform rule based operations on emails using Gmail API
 - Docker & Docker Compose (for PostgreSQL)
 
 ## Setup postgres DB
-Following create a database `emaildb` and a table `emails` with initial schema from `./init_db/init.sql`
+Following cmd will create a database `emaildb` and a table `emails` with initial schema from `./init_db/init.sql`
 
 Alternatively, a postgres db can be setup manually, run `init_db/init.sql` for initial schema and expose to port `5432`.
 
