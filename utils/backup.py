@@ -1,4 +1,4 @@
-from utils import init_pg_conn
+from services import init_pg_conn
 
 """
 Backup scripts to backup and restore emails from Postgres DB to pkl file and vice versa.
@@ -18,7 +18,7 @@ def backup_emails_to_pkl():
             emails = cursor.fetchall()
         
         import pickle
-        with open("emails_backup.pkl", "wb") as pkl_file:
+        with open("../bkp/emails_backup_db.pkl", "wb") as pkl_file:
             pickle.dump(emails, pkl_file)
         print(f"Backed up {len(emails)} emails to emails_backup.pkl")
     except Exception as e:
@@ -54,7 +54,7 @@ def restore_emails_from_pkl():
     
     import pickle
     try:
-        with open("emails_backup.pkl", "rb") as pkl_file:
+        with open("../bkp/emails_backup.pkl_db", "rb") as pkl_file:
             emails = pickle.load(pkl_file)
         
         insert_query = "INSERT INTO emails (id, subject_title, from_addr, to_addr, received_date) VALUES (%s, %s, %s, %s, %s);"
