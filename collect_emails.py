@@ -104,7 +104,7 @@ def store_emails_in_db():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process an integer argument.")
-    parser.add_argument("count", type=int, help="Number of emails to collect")
+    parser.add_argument("--count", type=int, default=10, help="Number of emails to collect")
     args = parser.parse_args()
 
     if args.count <= 0:
