@@ -64,7 +64,7 @@ class CollectEmails:
         if exception is not None:
             _LOG.debug(f"Request ID {request_id} failed: {exception}")
         else:
-            _LOG.debug(f"Request ID {request_id} succeeded. Data: {response}")
+            _LOG.debug(f"Request ID {request_id} succeeded.")
             header_map = {h["name"]: h["value"] for h in response["payload"]["headers"]}
             received_date = header_map.get("Date", "")
             if received_date:
