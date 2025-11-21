@@ -122,7 +122,7 @@ class EmailFilterEngine:
         try:
             with open(filepath, "r") as file:
                 data = json.load(file)
-            _LOG.info(f"Loaded rules from {filepath}, rules : {data}\n")
+            _LOG.info(f"Loaded rules from {filepath}\n")
             return data
         except Exception as e:
             raise RuleValidationError(f"Error reading rules from file: {e}")
