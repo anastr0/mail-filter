@@ -38,6 +38,24 @@ RULES_VALIDATORS = {
     "ACTIONS": ["MARK_AS_READ", "MOVE_MESSAGE"],
 }
 
+SQL_PREDICATES = {
+    "CONTAINS": " LIKE '%{}%'",
+    "DOES_NOT_CONTAIN": " NOT LIKE '%{}%'",
+    "EQUALS": " = '{}'",
+    "NOT_EQUAL": " != '{}'",
+    "LESS_THAN": " < (NOW() - INTERVAL '{}')",  # val can be "2 days"/ "3 months"
+    "GREATER_THAN": " > (NOW() + INTERVAL '{}')",
+}
+
+FIELD_ALIASES = {
+    "FROM": "from_addr",
+    "TO": "to_addr",
+    "SUBJECT": "subject_title",
+    "RECEIVED_DATE": "received_date",
+}
+
+OPERATORS = {"ANY": "OR", "ALL": "AND"}
+
 
 def get_gmail_api_service():
     """
@@ -76,6 +94,25 @@ def get_gmail_api_service():
         # TODO(developer) - Handle errors from gmail API.
         print(f"An error occurred: {error}")
         return
+    
+
+def api_request_callback(request_id, response, exception):
+    """Handles the response for a single request in the batch of Gmail API calls."""
+    if exception is not None:
+        # Handle the exception (e.g., print the error)
+        print(f"Request ID {request_id} failed: {exception}")
+    else:
+        # Process the response (e.g., print data)
+        print(f"Request ID {request_id} succeeded. Data: {response}")
+
+
+def get_new_gmail_api_batch_request():
+    """
+    Return a new batch request from google api client to process multiple API calls in 1 HTTP request.
+    NB: this doesn't help with quotas, but reduce network overhead 
+    """
+    service = get_gmail_api_service()
+    batch = service.new_batch_http_request(callback=api_request_callback)
 
 
 def init_pg_conn():
