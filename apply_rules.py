@@ -67,6 +67,24 @@ class EmailFilterEngine:
     def __init__(self):
         self.db_conn = init_pg_conn()
         self.gmail_service = get_gmail_api_service()
+        self.gmail_labels = self.fetch_gmail_labels()
+
+    def fetch_gmail_labels(self):
+        """Fetch existing Gmail labels for the user.
+        This is needed to validate folder names in MOVE_MESSAGE action."""
+        try:
+            results = (
+                self.gmail_service.users()
+                .labels()
+                .list(userId="me")
+                .execute()
+            )
+            labels = results.get("labels", [])
+            label_dict = {label["name"].lower(): label["id"] for label in labels}
+            return label_dict
+        except Exception as e:
+            _LOG.error(f"An error occurred while fetching Gmail labels: {e}")
+            raise
 
     def validate_rule(self, rule):
         """Validate individual rule structure and values."""
@@ -177,6 +195,12 @@ class EmailFilterEngine:
     def move_emails_to_folder(self, email_rows, folder_name):
         """
         action MOVE_MESSAGE: move emails to a different folder using gmail_service
+        """
+        if folder_name.lower() not in self.gmail_labels:
+            _LOG.error(f"Label '{folder_name}' does not exist in Gmail.")
+            return
+
+        label_id = self.gmail_labels[folder_name.lower()]
         body = {
             "ids": email_rows,
             "addLabelIds": [label_id],
