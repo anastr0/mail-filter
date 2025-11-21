@@ -75,7 +75,6 @@ def get_gmail_api_service():
         return service
 
     except HttpError as error:
-        # TODO(developer) - Handle errors from gmail API.
         _LOG.debug(f"An error occurred: {error}")
         return
 
