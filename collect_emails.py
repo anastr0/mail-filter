@@ -1,8 +1,21 @@
 import argparse
+import logging
+import sys
 
 from datetime import datetime
 
 from utils import init_pg_conn, get_gmail_api_service
+
+# Configure module logger to output to stdout
+_LOG = logging.getLogger(__name__)
+if not _LOG.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    _LOG.addHandler(handler)
+_LOG.setLevel(logging.DEBUG)
+_LOG.propagate = False
 
 
 def get_email_metadata(service, email_id):
