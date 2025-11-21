@@ -1,3 +1,5 @@
+import argparse
+
 from datetime import datetime
 
 from utils import init_pg_conn, get_gmail_api_service
@@ -101,4 +103,14 @@ def store_emails_in_db():
 
 
 if __name__ == "__main__":
-    store_emails_in_db()
+    parser = argparse.ArgumentParser(description="Process an integer argument.")
+    parser.add_argument("count", type=int, help="Number of emails to collect")
+    args = parser.parse_args()
+
+    if args.count <= 0:
+        print("Count must be a positive integer.")
+    elif args.count > 100:
+        print("Count exceeds the maximum limit of 100. You risk hitting API limits.")
+    else:
+        print(f"Collecting {args.count} emails from Gmail and storing in DB.")
+        store_emails_in_db()
