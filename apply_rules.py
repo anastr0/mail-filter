@@ -94,5 +94,50 @@ def apply_rules():
     apply_actions(ruleset["actions"])
 
 
+
+
+RULES_VALIDATORS = {
+    "RULES": {
+        "FIELDS": ["FROM", "TO", "SUBJECT", "RECEIVED_DATE"],
+        "PREDICATES": [
+            "CONTAINS",
+            "DOES_NOT_CONTAIN",
+            "EQUALS",
+            "NOT_EQUAL",
+            "LESS_THAN",
+            "GREATER_THAN",
+        ],
+        "OVERALL_PREDICATES": ["ALL", "ANY"],
+        "STRING_VALUE": {
+            "FIELDS": ["FROM", "TO", "SUBJECT"],
+            "PREDICATES": ["CONTAINS", "DOES_NOT_CONTAIN", "EQUALS", "NOT_EQUAL"],
+        },
+        "TIME_VALUE": {  #
+            "FIELDS": [
+                "RECEIVED_DATE",
+            ],
+            "PREDICATES": ["LESS_THAN", "GREATER_THAN"],
+        },
+    },
+    "ACTIONS": ["MARK_AS_READ", "MOVE_MESSAGE"],
+}
+
+SQL_PREDICATES = {
+    "CONTAINS": " LIKE '%{}%'",
+    "DOES_NOT_CONTAIN": " NOT LIKE '%{}%'",
+    "EQUALS": " = '{}'",
+    "NOT_EQUAL": " != '{}'",
+    "LESS_THAN": " < (NOW() - INTERVAL '{}')",  # val can be "2 days"/ "3 months"
+    "GREATER_THAN": " > (NOW() + INTERVAL '{}')",
+}
+
+FIELD_ALIASES = {
+    "FROM": "from_addr",
+    "TO": "to_addr",
+    "SUBJECT": "subject_title",
+    "RECEIVED_DATE": "received_date",
+}
+
+OPERATORS = {"ANY": "OR", "ALL": "AND"}
 if __name__ == "__main__":
     apply_rules()
