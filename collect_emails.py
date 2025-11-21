@@ -23,7 +23,7 @@ class CollectEmails:
         Each email detail tuple is : (id, subject, from, to, date)
         """
         if not self.gmail_service:
-            _LOG.error("Failed to get Gmail API service.")
+            _LOG.debug("Failed to get Gmail API service.")
             return
 
         emails = []
@@ -41,7 +41,7 @@ class CollectEmails:
                 _LOG.info("No emails found.")
                 return
         except Exception as e:
-            _LOG.errors(f"An error occurred while listing emails from Gmail API: {e}")
+            _LOG.error(f"An error occurred while listing emails from Gmail API: {e}")
             return
 
         email_values = [self.get_email_metadata(email["id"]) for email in emails]
@@ -96,7 +96,7 @@ class CollectEmails:
             _LOG.info("No emails to store.")
             return
 
-        _LOG.info(f"Storing {len(email_values)} emails into the database.")
+        _LOG.debug(f"Storing {len(email_values)} emails into the database.")
         if not self.db_conn:
             _LOG.error("No database connection available.")
             return
@@ -107,24 +107,28 @@ class CollectEmails:
                 cursor.executemany(insert_query, email_values)
             self.db_conn.commit()
         except Exception as e:
-            _LOG.error(f"An error occurred while inserting emails into the database: {e}")
+            _LOG.error(
+                f"An error occurred while inserting emails into the database: {e}"
+            )
         finally:
             self.db_conn.close()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process an integer argument.")
-    parser.add_argument("--count", type=int, default=10, help="Number of emails to collect")
+    parser.add_argument(
+        "--count", type=int, default=10, help="Number of emails to collect"
+    )
     args = parser.parse_args()
 
     if args.count <= 0:
         _LOG.error("Count must be a positive integer.")
     elif args.count > 100:
-        _LOG.error("Count exceeds the maximum limit of 100. You risk hitting API limits.")
+        _LOG.error(
+            "Count exceeds the maximum limit of 100. You risk hitting API limits."
+        )
     else:
         _LOG.info(f"Collecting {args.count} emails from Gmail and storing in DB.")
 
         collector = CollectEmails(count=args.count)
         collector.fetch_and_store_emails_in_db()
-
-

@@ -24,7 +24,11 @@ def get_logger(name, level=logging.INFO):
     logger.propagate = False
 
     # Add a single StreamHandler to stdout if none exist
-    if not any(isinstance(h, logging.StreamHandler) and getattr(h, "stream", None) is sys.stdout for h in logger.handlers):
+    if not any(
+        isinstance(h, logging.StreamHandler)
+        and getattr(h, "stream", None) is sys.stdout
+        for h in logger.handlers
+    ):
         handler = logging.StreamHandler(sys.stdout)
         handler.setLevel(level)
         fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -33,7 +37,9 @@ def get_logger(name, level=logging.INFO):
 
     return logger
 
+
 _LOG = get_logger(__name__, logging.DEBUG)
+
 
 def get_gmail_api_service():
     """
@@ -70,18 +76,16 @@ def get_gmail_api_service():
 
     except HttpError as error:
         # TODO(developer) - Handle errors from gmail API.
-        print(f"An error occurred: {error}")
+        _LOG.debug(f"An error occurred: {error}")
         return
 
 
 def api_request_callback(request_id, response, exception):
     """Handles the response for a single request in the batch of Gmail API calls."""
     if exception is not None:
-        # Handle the exception (e.g., print the error)
-        print(f"Request ID {request_id} failed: {exception}")
+        _LOG.debug(f"Request ID {request_id} failed: {exception}")
     else:
-        # Process the response (e.g., print data)
-        print(f"Request ID {request_id} succeeded. Data: {response}")
+        _LOG.debug(f"Request ID {request_id} succeeded. Data: {response}")
 
 
 def get_new_gmail_api_batch_request(callback=api_request_callback):
@@ -101,7 +105,7 @@ def init_pg_conn():
         conn = psycopg2.connect(
             host="localhost", database="emaildb", user="atr", password="password"
         )
-        print("Connected to PostgreSQL successfully!")
+        _LOG.debug("Connected to PostgreSQL successfully!")
     except psycopg2.Error as e:
-        print(f"Error connecting to PostgreSQL: {e}")
+        _LOG.debug(f"Error connecting to PostgreSQL: {e}")
     return conn

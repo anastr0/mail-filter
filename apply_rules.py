@@ -1,10 +1,6 @@
 import logging
 
-from utils.services import (
-    init_pg_conn,
-    get_gmail_api_service,
-    get_logger
-)
+from utils.services import init_pg_conn, get_gmail_api_service, get_logger
 
 
 # Configure module logger to output to stdout
@@ -66,12 +62,7 @@ class EmailFilterEngine:
         """Fetch existing Gmail labels for the user.
         This is needed to validate folder names in MOVE_MESSAGE action."""
         try:
-            results = (
-                self.gmail_service.users()
-                .labels()
-                .list(userId="me")
-                .execute()
-            )
+            results = self.gmail_service.users().labels().list(userId="me").execute()
             labels = results.get("labels", [])
             label_dict = {label["name"].lower(): label["id"] for label in labels}
             return label_dict
@@ -115,7 +106,7 @@ class EmailFilterEngine:
         try:
             with open(filepath, "r") as file:
                 data = json.load(file)
-            _LOG.info(f"Loaded rules from {filepath}\n")
+            _LOG.debug(f"Loaded rules from {filepath}\n")
             return data
         except Exception as e:
             raise RuleValidationError(f"Error reading rules from file: {e}")
@@ -150,19 +141,25 @@ class EmailFilterEngine:
         """
         # self.validate_ruleset(ruleset)
         query = self.build_rule_query(ruleset)
-        _LOG.info(f"Query built successfully for ruleset: {ruleset['name']}.\n Executing Query: {query}\n...")
+        _LOG.debug(
+            f"Query built successfully for ruleset: {ruleset['name']}.\n Executing Query: {query}\n..."
+        )
 
         with self.db_conn.cursor() as cursor:
             cursor.execute(query)
             rows = cursor.fetchall()
 
-        _LOG.info(f"Filtered {len(rows)} emails from DB for ruleset: {ruleset['name']}.\nApplying actions...\n")
+        _LOG.debug(
+            f"Filtered {len(rows)} emails from DB for ruleset: {ruleset['name']}.\nApplying actions...\n"
+        )
         # Apply actions to the filtered emails
 
         if rows:
             self.apply_actions(ruleset["actions"], [row[0] for row in rows])
         else:
-            _LOG.info(f"No emails matched for ruleset: {ruleset['name']}. No actions applied.\n")
+            _LOG.info(
+                f"No emails matched for ruleset: {ruleset['name']}. No actions applied.\n"
+            )
 
     def apply_actions(self, actions, email_rows):
         """apply actions to the emails identified by email_rows using gmail_service"""
@@ -179,7 +176,7 @@ class EmailFilterEngine:
         action MARK_READ: mark emails as read using gmail_service
         """
 
-        _LOG.info(f"Emails : {email_rows}")
+        _LOG.debug(f"Emails : {email_rows}")
         body = {
             "ids": email_rows,
             "removeLabelIds": ["UNREAD"],
@@ -187,7 +184,7 @@ class EmailFilterEngine:
         self.gmail_service.users().messages().batchModify(
             userId="me", body=body
         ).execute()
-        _LOG.info(f"Marked {len(email_rows)} emails as read.")
+        _LOG.debug(f"Marked {len(email_rows)} emails as read.")
 
     def move_emails_to_folder(self, email_rows, folder_name):
         """
@@ -210,6 +207,7 @@ class EmailFilterEngine:
 
 class RuleValidationError(Exception):
     """Custom exception for rule validation errors."""
+
     pass
 
 
@@ -221,7 +219,9 @@ if __name__ == "__main__":
     for ruleset in rules_data.get("filters", []):
         try:
             email_filter.apply_ruleset(ruleset)
-            _LOG.info(f"Applied ruleset: '{ruleset['name']}' with desc: '{ruleset['description']}' successfully.")
+            _LOG.info(
+                f"Applied ruleset: '{ruleset['name']}' with desc: '{ruleset['description']}' successfully."
+            )
         except RuleValidationError as e:
             _LOG.error(f"Rule validation error: {e}")
         except Exception as e:
