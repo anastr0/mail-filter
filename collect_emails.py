@@ -44,28 +44,28 @@ class CollectEmails:
             _LOG.error(f"An error occurred while listing emails from Gmail API: {e}")
             return
 
-        email_values = [self.get_email_metadata(email["id"]) for email in emails]
-        _LOG.info(f"Fetched {len(email_values)} emails from Gmail.")
+        email_values = self.get_email_details(emails)
+        _LOG.debug(f"Fetched {len(email_values)} emails from Gmail.")
         return email_values
 
-    def get_email_metadata(self, email_id):
+    def get_new_gmail_api_batch_request(self, callback):
         """
-        Fetch email metadata from Gmail API for a given email ID.
-        Returns a tuple: (id, subject, from, to, date)
+        Create a new batch request for Gmail API.
         """
         try:
-            metadata = (
-                self.gmail_service.users()
-                .messages()
-                .get(
-                    userId="me",
-                    id=email_id,
-                    format="metadata",
-                    metadataHeaders=["Subject", "From", "To", "Date"],
-                )
-                .execute()
-            )
-            header_map = {h["name"]: h["value"] for h in metadata["payload"]["headers"]}
+            batch = self.gmail_service.new_batch_http_request(callback=callback)
+            return batch
+        except Exception as e:
+            _LOG.error(f"An error occurred while creating Gmail API batch request: {e}")
+            raise
+
+    def email_metadata_callback(self, request_id, response, exception, results):
+        """Handles the response for a single request in the batch of Gmail API calls."""
+        if exception is not None:
+            _LOG.debug(f"Request ID {request_id} failed: {exception}")
+        else:
+            _LOG.debug(f"Request ID {request_id} succeeded. Data: {response}")
+            header_map = {h["name"]: h["value"] for h in response["payload"]["headers"]}
             received_date = header_map.get("Date", "")
             if received_date:
                 try:
@@ -74,18 +74,59 @@ class CollectEmails:
                     )
                 except ValueError:
                     _LOG.error(
-                        f"Date parsing error for email ID {email_id}: {received_date}"
+                        f"Date parsing error for email ID {response['id']}: {received_date}"
                     )
-            return (
-                metadata["id"],
-                header_map.get("Subject", ""),
-                header_map.get("From", ""),
-                header_map.get("To", ""),
-                received_date,
+            results.append(
+                (
+                    response["id"],
+                    header_map.get("Subject", ""),
+                    header_map.get("From", ""),
+                    header_map.get("To", ""),
+                    received_date,
+                )
             )
+
+    def get_email_details(self, emails):
+        """
+        Fetch email metadata (subject, from, to, date) for a list of email IDs
+        using batch requests to Gmail API.
+        Returns a list of tuples with email details.
+        Each email detail tuple is : (id, subject, from, to, date)"""
+        email_values = []
+
+        # create batch with a small wrapper to pass `results` into callback
+        # this is needed to gather email metadata from individual req callback invocations in batch
+        def callback_wrapper(request_id, response, exception, _results=email_values):
+            self.email_metadata_callback(request_id, response, exception, _results)
+
+        batch = self.get_new_gmail_api_batch_request(callback=callback_wrapper)
+        for email in emails:
+            metadata_req = (
+                self.gmail_service.users()
+                .messages()
+                .get(
+                    userId="me",
+                    id=email["id"],
+                    format="metadata",
+                    metadataHeaders=["Subject", "From", "To", "Date"],
+                )
+            )
+            batch.add(metadata_req, request_id=f"get-email-metadata-{email['id']}")
+
+        try:
+            batch.execute()
         except Exception as e:
-            _LOG.error(f"An error occurred while fetching email metadata: {e}")
-            return None
+            _LOG.error(
+                f"An error occurred while executing Gmail API batch request: {e}"
+            )
+
+        if not email_values:
+            _LOG.debug("No email metadata fetched in batch request.")
+        else:
+            _LOG.debug(
+                f"Fetched metadata for {len(email_values)} emails in batch request."
+            )
+        return email_values
 
     def fetch_and_store_emails_in_db(self):
         """
