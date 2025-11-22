@@ -209,6 +209,8 @@ __marimo__/
 
 
 # secrets
-secrets/
+secrets/token.json
+secrets/credentials.json
 *.pkl
 bkp/
+!tests/emails_backup_db_test.pkl

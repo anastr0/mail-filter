@@ -1,0 +1,18 @@
+{
+    "filters": [
+        {
+            "name": "github_notifications",
+            "description": "Filter GitHub Notifications",
+            "rules": [
+                {"field": "FROM", "predicate": "CONTAINS", "value": "github.com"},
+                {"field": "RECEIVED_DATE", "predicate": "LESS_THAN", "value": "10 days"},
+                {"field": "SUBJECT", "predicate": "CONTAINS", "value": "GitHub" }
+            ],
+            "overall_predicate": "ALL",
+            "actions": [
+                ["MARK_AS_READ", null],
+                ["MOVE_MESSAGE", "git"]
+            ]
+        }
+    ]
+} 
