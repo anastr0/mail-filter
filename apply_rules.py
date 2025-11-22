@@ -38,8 +38,8 @@ SQL_PREDICATES = {
     "DOES_NOT_CONTAIN": " NOT LIKE '%{}%'",
     "EQUALS": " = '{}'",
     "NOT_EQUAL": " != '{}'",
-    "LESS_THAN": " < (NOW() - INTERVAL '{}')",  # val can be "2 days"/ "3 months"
-    "GREATER_THAN": " > (NOW() + INTERVAL '{}')",
+    "LESS_THAN": " > (CURRENT_DATE - INTERVAL '{}')",  # val can be "2 days"/ "3 months"
+    "GREATER_THAN": " < (CURRENT_DATE - INTERVAL '{}')",
 }
 
 FIELD_ALIASES = {
