@@ -163,46 +163,23 @@ class EmailFilterEngine:
 
     def apply_actions(self, actions, email_rows):
         """apply actions to the emails identified by email_rows using gmail_service"""
-
+        body = {"ids": email_rows}
         for action in actions:
             if action[0] == "MARK_AS_READ":
-                self.mark_emails_as_read(email_rows)
+                body.update({"removeLabelIds": ["UNREAD"]})
             elif action[0] == "MOVE_MESSAGE":
                 # logic to move emails to a different folder using gmail_service
-                self.move_emails_to_folder(email_rows, action[1])
+                folder_name = action[1]
+                if folder_name.lower() not in self.gmail_labels:
+                    _LOG.error(f"Label '{folder_name}' does not exist in Gmail.")
+                    continue
 
-    def mark_emails_as_read(self, email_rows):
-        """
-        action MARK_READ: mark emails as read using gmail_service
-        """
-
-        _LOG.debug(f"Emails : {email_rows}")
-        body = {
-            "ids": email_rows,
-            "removeLabelIds": ["UNREAD"],
-        }
+                label_id = self.gmail_labels[folder_name.lower()]
+                body.update({"addLabelIds": [label_id]})
         self.gmail_service.users().messages().batchModify(
             userId="me", body=body
         ).execute()
-        _LOG.debug(f"Marked {len(email_rows)} emails as read.")
-
-    def move_emails_to_folder(self, email_rows, folder_name):
-        """
-        action MOVE_MESSAGE: move emails to a different folder using gmail_service
-        """
-        if folder_name.lower() not in self.gmail_labels:
-            _LOG.error(f"Label '{folder_name}' does not exist in Gmail.")
-            return
-
-        label_id = self.gmail_labels[folder_name.lower()]
-        body = {
-            "ids": email_rows,
-            "addLabelIds": [label_id],
-        }
-        self.gmail_service.users().messages().batchModify(
-            userId="me", body=body
-        ).execute()
-        _LOG.info(f"Moved {len(email_rows)} emails to folder '{folder_name}'.")
+        _LOG.info(f"Applied actions : {actions}")
 
 
 class RuleValidationError(Exception):
