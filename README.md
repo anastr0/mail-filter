@@ -93,3 +93,8 @@ Usage instructions for rules.json:
 ```bash
 python apply_rules.py
 ```
+
+## Working diagram
+
+![working](/working_diagram.png "Working Diagram")
+
